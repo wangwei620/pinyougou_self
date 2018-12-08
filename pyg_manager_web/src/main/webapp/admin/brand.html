@@ -17,104 +17,10 @@
     <link rel="stylesheet" href="../plugins/angularjs/pagination.css">
     <script type="text/javascript" src="../plugins/angularjs/pagination.js"></script>
 
-    <script type="text/javascript">
-        //定义模块  参数一：模块名 参数二：依赖的其他模块 ，如果没有依赖其他模块，也需要声明空数组
-        var app = angular.module("pinyougou",['pagination']);
-        //定义控制器  参数一：控制器名称  参数二：控制器做的事情
-        //$scope angularjs内置对象，全局作用域对象  作用：html与js数据交换的桥梁
-        //$http angularjs发起请求的内置服务对象   全部都是异步ajax
-        app.controller("brandController",function ($scope,$http) {
-            //定义查询所有品牌列表的方法
-            $scope.findAll=function () {
-                //response接收响应结果
-                $http.get("../brand/findAll.do").success(function (response) {
-                    $scope.list=response
-                })
-            }
-            //分页展示条
-            //分页配置
-            $scope.paginationConf = {
-                currentPage:1,  				//当前页
-                totalItems:10,					//总记录数
-                itemsPerPage:10,				//每页记录数
-                perPageOptions:[10,20,30,40,50], //分页选项，下拉选择一页多少条记录
-                onChange:function(){			//页面变更后触发的方法
-                    $scope.reloadList();		//启动就会调用分页组件
-                }
-            };
-            //重新加载分页信息
-            /*$scope.reloadList=function () {
-                $scope.findPage($scope.paginationConf.currentPage,$scope.paginationConf.itemsPerPage);
-            }*/
-            //条件查询和分页展示
-            $scope.searchEntity={};//解决初始化参数为空的情况
-            $scope.reloadList=function () {
-                $http.post("../brand/search.do?pageNum="+$scope.paginationConf.currentPage+"&pageSize="+$scope.paginationConf.itemsPerPage,
-                    $scope.searchEntity).success(function (response) {
-                    $scope.list = response.rows;
-                    $scope.paginationConf.totalItems=response.total;
-                })
-            }
-            //添加
-            $scope.save=function () {
-                //定义一个变量
-                var methodName="";
-                if($scope.entity.id!=null){
-                    //修改
-                    methodName="update.do";
-                }else{
-                    //新增
-                    methodName="add.do";
-                }
-                $http.post("../brand/"+methodName,$scope.entity).success(function (response) {
-                    if (response.success){
-                        //添加成功
-                        $scope.reloadList();
-                    }else{
-                        //不成功
-                        alert(response.message);
-                    }
-                })
-            }
-            //通过id查找
-            $scope.findOne=function (id) {
-                $http.get("../brand/findOne.do?id="+id).success(function (response) {
-                    $scope.entity=response;
-                })
-            }
-            //定义复选框ids数组值
-            $scope.selectIds=[];
-            //跟新复选框状态
-            $scope.updateSelection=function ($event,id) {
-                //判断  选中的状态
-                if($event.target.checked){
-                    //选中状态
-                    $scope.selectIds.push(id);
-                }else{
-                    //取消勾选,移除当前的id值,//参数一:移除当前位置的索引值,参数二:从该处移除几个值
-                    var index = $scope.selectIds.indexOf(id);
-                    $scope.selectIds.splice(index,1);
-                }
-            }
-            //删除
-            $scope.delete=function () {
-                if (confirm("您确定要删除吗")){
-                    $http.get("../brand/delete.do?ids="+$scope.selectIds).success(function (response) {
-                        if (response.success){
-                            //删除成功
-                            $scope.reloadList();
-                        }else{
-                            //删除失败
-                            //给提示消息
-                            alert(response.message);
-                        }
-
-                    })
-                }
-            }
-        });
-    </script>
-
+    <script type="text/javascript" src="../js/base_pagination.js"></script>
+    <script type="text/javascript" src="../js/service/brandService.js"></script>
+    <script type="text/javascript" src="../js/controller/baseController.js"></script>
+    <script type="text/javascript" src="../js/controller/brandController.js"></script>
 
 </head>
 <body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="brandController" >
